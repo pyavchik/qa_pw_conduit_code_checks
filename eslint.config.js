@@ -1,31 +1,32 @@
+import globals from 'globals';
+import pluginJs from '@eslint/js';
 import playwright from 'eslint-plugin-playwright';
-import js from '@eslint/js';
-import prettier from 'eslint-config-prettier';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
+/** @type {import('eslint').Linter.Config[]} */
 export default [
-  js.configs.recommended,
+  { languageOptions: { globals: globals.node } },
+  eslintConfigPrettier,
   {
-    files: ['tests/**/*.spec.js'],
+    ...pluginJs.configs.recommended,
     ...playwright.configs['flat/recommended'],
-  },
-  {
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: {
-        console: 'readonly',
-        process: 'readonly',
-        module: 'readonly',
-        exports: 'readonly',
-        require: 'readonly',
-        __dirname: 'readonly',
-      },
-    },
     rules: {
-      'no-unused-vars': 'warn',
-      'no-console': 'off',
+      ...pluginJs.configs.recommended.rules,
+      'no-unused-vars': 'error',
+      'max-len': [
+        'error',
+        {
+          code: 80,
+          comments: 80,
+        },
+      ],
+      ...playwright.configs['flat/recommended'].rules,
       'playwright/expect-expect': 'off',
     },
+    ignores: [
+      '**/node_modules/*',
+      'playwright.config.js',
+      '**/playwright-report/**',
+    ],
   },
-  prettier,
 ];
